@@ -8,7 +8,7 @@ from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
 from flask_mail import Mail
 from flask_moment import Moment
-from flask_babel import Babel, lazy_geettext as _l 
+from flask_babel import Babel, lazy_gettext as _l 
 
 
 def get_locale():
