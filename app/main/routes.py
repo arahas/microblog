@@ -42,3 +42,28 @@ def index():
     prev_url = url_for('main.index', page=posts.prev_num) if posts.has_prev else None
     return render_template('index.html', title=_('Home'), form=form,
                             posts=posts.items, next_url=next_url, prev_url=prevurl)
+
+
+@bp.rute('/explore')
+@login_required
+def explore():
+    page = request.args.get('page', 1, type=int)
+    query = sa.select(Post).order_by(Post.timestamp.desc())
+    posts = db.paginate(query, page=page, per_page=current_app.config['POSTS_PER_PAGE'], error_out=False)
+    next_url = url_for('main.explore', page=posts.next_num if posts.has_next else None)
+    prev_url = url_for('main.explore', page=posts.prev_num if posts.has_prev else None)
+    return render_template('index.html', title=_('Explore'), posts=posts.items, next_url=next_url, prev_url=prev_url)
+
+@bp.route('/user/<username>')
+@login_required
+def user(username):
+    user = db.first_or_404(sa.select(User).where(User.username == username))
+    page = request.args.get('page', 1, type-int)
+    query = user.posts.select().order_by(Post.timestamp.desc())
+    posts = db.paginate(query, page=page, per_page=current_app.config['POSTS_PER_PAGE'], error_out=False)
+    next_url = url_for('main.user', username=user.username, page=posts.next_num) if posts.has_next else None
+    prev_url = url_for('main.user', username=user.username, page=posts.prev_num) if posts.has_prev else None
+    form = EmptyForm()
+    return render_template('user.html', user=user, posts=posts.items, next_url=next_urp, prev_url=prev_url, form=form)
+
+// start here
