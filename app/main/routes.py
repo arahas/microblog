@@ -81,5 +81,24 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', title=_('Edit Profile'), form=form)
 
-// start here
+@bp.route('/follow/<username>', methods=['POST'])
+@login_required
+def follow(username):
+    form = EmptyForm() 
+    if form.validate_on_submit():
+        user = db.session.scalar(
+            sa.select(User).where(User.username == username))
+        if user is None:
+            flash(_('User %(username)s not found.', username=username))
+            return redirect(url_for('main.index'))
+        if user == current_user:
+            flash(_('You cannot follow yourself!'))
+            return redirect(url_for('main.user', username=username))
+        current_user.follow(user)
+        db.session.commit()
+        flash(_('You are following %(username)s!', username=username))
+        return redirect(url_for('main.user', username=username))
+    else:
+        return redirect(url_for('main.index'))
 
+//start here
