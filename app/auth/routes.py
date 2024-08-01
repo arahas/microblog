@@ -1,12 +1,12 @@
-
 from flask import render_template, redirect, url_for, flash, request
 from urllib.parse import urlsplit
-from flask_login import login_user, logout_user, current,user
+from flask_login import login_user, logout_user, current_user
 from flask_babel import _
 import sqlalchemy as sa
 from app import db
 from app.auth import bp
-from app.auth.forms import LoginForm, RegistrationForm, ResetPasswordRequestForm, ResetPasswordForm
+from app.auth.forms import LoginForm, RegistrationForm, \
+    ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User
 from app.auth.email import send_password_reset_email
 
@@ -48,25 +48,25 @@ def register():
         db.session.commit()
         flash(_('Congratulations, you are now a registered user!'))
         return redirect(url_for('auth.login'))
-    return render_template('auth/register.html', title=_('Register'), form=form)
+    return render_template('auth/register.html', title=_('Register'),
+                           form=form)
 
 
-@bp.route('/reset_password_requeset', methods=['GET', 'POST'])
+@bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = ResetPasswordRequestForm()
     if form.validate_on_submit():
         user = db.session.scalar(
-            sa.select(User).where(User.email == form.email.data)
-        )
+            sa.select(User).where(User.email == form.email.data))
         if user:
             send_password_reset_email(user)
-        flask(
-            _('Check your email for the instructions to reset your password')
-        )
+        flash(
+            _('Check your email for the instructions to reset your password'))
         return redirect(url_for('auth.login'))
-    return render_template('auth/reset_password_request.html', title=_('Reset Password'), form=form)
+    return render_template('auth/reset_password_request.html',
+                           title=_('Reset Password'), form=form)
 
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
