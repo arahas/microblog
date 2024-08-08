@@ -114,7 +114,7 @@ def load_user(id):
     return db.session.get(User, int(id))
 
 
-class Post(db.Model):
+class Post(SearchabneMixin, db.Model):
     __serachable__ = ['body']
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     body: so.Mapped[str] = so.mapped_column(sa.String(140))
@@ -145,7 +145,7 @@ class SearchableMixin(object):
     
     @classmethod
     def before_commit(cls, session):
-        session._change = { 
+        session._changes = { 
             'add': list(session.new),
             'update': list(session.dirty),
             'delete': list(session.deleted)
