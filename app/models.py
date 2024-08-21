@@ -41,7 +41,7 @@ class SearchableMixin(object):
         for obj in session._changes['update']:
             if isinstance(obj, SearchableMixin):
                 add_to_index(obj.__tablename__, obj)
-        for obj in session.changes['delete']:
+        for obj in session._changes['delete']:
             if isinstance(obj, SearchableMixin):
                 remove_from_index(obj.__tablename__, obj)
         session._changes = None
@@ -51,8 +51,8 @@ class SearchableMixin(object):
         for obj in db.session.scalars(sa.select(cls)):
             add_to_index(cls.__tablename__, obj)
 
-    db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
-    db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
+db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
+db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
 
 followers = sa.Table(
